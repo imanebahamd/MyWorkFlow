@@ -1,0 +1,56 @@
+# ====================
+# GLOBAL IGNORES
+# ====================
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - VS Code
+.vscode/
+!.vscode/extensions.json
+
+# IDE - Eclipse
+.project
+.classpath
+.settings/
+
+# OS - macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# OS - Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# OS - Linux
+*~
+.directory
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Environment variables (global)
+.env
+.env.local
+.env.*.local
+
+# Docker volumes (si vous utilisez Docker)
+postgres_data/
