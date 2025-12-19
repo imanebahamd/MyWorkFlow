@@ -54,3 +54,5 @@ yarn-error.log*
 
 # Docker volumes (si vous utilisez Docker)
 postgres_data/
+
+uploads/
