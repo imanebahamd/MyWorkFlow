@@ -1,8 +1,20 @@
 # Spring Boot secrets
 application.properties
 
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Application properties
+application-*.properties
+
 # Docs / aide
 HELP.md
+
+data.sql
 
 # Maven / build
 target/

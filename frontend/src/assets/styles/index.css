@@ -1,0 +1,157 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #64748b;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #06b6d4;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Auth forms */
+.auth-form-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Sidebar */
+.sidebar {
+  min-height: calc(100vh - 56px);
+  transition: width 0.3s;
+}
+
+.sidebar .nav-link {
+  transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover:not(.active) {
+  background-color: #f8fafc;
+}
+
+/* Button animations */
+.btn {
+  transition: all 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Form validation */
+.was-validated .form-control:valid {
+  border-color: var(--success-color);
+}
+
+.was-validated .form-control:invalid {
+  border-color: var(--danger-color);
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom utilities */
+.hover-bg-light:hover {
+  background-color: #f8fafc !important;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.min-vh-80 {
+  min-height: 80vh;
+}
+
+/* Profile image upload */
+.profile-image-upload {
+  cursor: pointer;
+}
+
+.profile-image-upload:hover .profile-image-overlay {
+  opacity: 1;
+}
+
+.profile-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 50%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100% !important;
+    position: fixed;
+    top: 56px;
+    left: -100%;
+    z-index: 1000;
+    transition: left 0.3s;
+  }
+  
+  .sidebar.show {
+    left: 0;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
