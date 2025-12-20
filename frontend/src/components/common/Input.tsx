@@ -1,10 +1,12 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
+import type { FormControlProps } from 'react-bootstrap';
 
-interface InputProps extends  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+interface InputProps extends Omit<FormControlProps, 'type'> {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'file';
 }
 
 const Input: React.FC<InputProps> = ({
@@ -12,6 +14,7 @@ const Input: React.FC<InputProps> = ({
   error,
   icon,
   className = '',
+  type = 'text',
   ...props
 }) => {
   return (
@@ -19,6 +22,7 @@ const Input: React.FC<InputProps> = ({
       {label && <Form.Label>{label}</Form.Label>}
       <div className="position-relative">
         <Form.Control
+          type={type}
           className={`${error ? 'is-invalid' : ''} ${className}`}
           {...props}
         />
