@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import Loader from '../components/common/Loader';
+import ProjectTasksPage from '../pages/ProjectTasksPage';
+import TaskDetailPage from '../pages/TaskDetailPage';
 
 // Lazy load pages for better performance
 const LoginPage = React.lazy(() => import('../pages/LoginPage'));
@@ -54,6 +56,17 @@ const AppRoutes: React.FC = () => {
               </ProtectedRoute>
             } />
             
+<Route path="/projects/:id/tasks" element={
+  <ProtectedRoute>
+    <ProjectTasksPage />
+  </ProtectedRoute>
+} />
+
+<Route path="/tasks/:id" element={
+  <ProtectedRoute>
+    <TaskDetailPage />
+  </ProtectedRoute>
+} />
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

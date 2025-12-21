@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageRequestDTO {
@@ -21,8 +21,10 @@ public class PageRequestDTO {
     @Min(value = 1, message = "Page size must be greater than or equal to 1")
     private int size = 10;
 
+    @Builder.Default
     private String sortBy = "createdAt";
 
+    @Builder.Default
     private String sortDirection = "desc";
 
     private String search;

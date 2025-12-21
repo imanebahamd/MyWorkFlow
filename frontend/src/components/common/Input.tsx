@@ -6,7 +6,7 @@ interface InputProps extends Omit<FormControlProps, 'type'> {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'file';
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'file' | 'date';
 }
 
 const Input: React.FC<InputProps> = ({

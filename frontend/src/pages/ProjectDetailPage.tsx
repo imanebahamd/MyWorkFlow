@@ -7,7 +7,9 @@ import {
   Person,
   ThreeDots,
   Pencil,
-  Trash
+  Trash,
+  Plus,
+  CheckSquare
 } from 'react-bootstrap-icons';
 import { toast } from 'react-hot-toast';
 import MainLayout from '../components/layout/MainLayout';
@@ -15,12 +17,18 @@ import ProgressBar from '../components/projects/ProgressBar';
 import Loader from '../components/common/Loader';
 import Alert from '../components/common/Alert';
 import Dropdown from '../components/common/Dropdown';
+import TaskList from '../components/tasks/TaskList';
+import TaskForm from '../components/tasks/TaskForm';
 import { useProjects } from '../hooks/useProjects';
+import { useTasks } from '../hooks/useTasks';
 import { formatDate } from '../utils/formatters';
+import type { Task } from '../types/task.types';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const projectId = id ? parseInt(id) : 0;
+  
   const {
     projectDetail,
     loading,
@@ -29,11 +37,26 @@ const ProjectDetailPage: React.FC = () => {
     deleteProject,
   } = useProjects();
 
+  const {
+    tasks,
+    loading: tasksLoading,
+    error: tasksError,
+    fetchTasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTaskStatus,
+  } = useTasks(projectId);
+
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     if (id) {
       fetchProjectById(parseInt(id));
+      fetchTasks({}); // Pass empty filters to get all tasks
     }
   }, [id]);
 
@@ -51,6 +74,77 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
+  const handleCreateTask = async (taskData: any) => {
+    try {
+      await createTask({
+        ...taskData,
+        projectId: projectId,
+      });
+      setShowCreateModal(false);
+      toast.success('Task created successfully!');
+      // Refresh project and tasks
+      if (id) {
+        fetchProjectById(parseInt(id));
+        fetchTasks({});
+      }
+    } catch (err) {
+      toast.error('Failed to create task');
+    }
+  };
+
+  const handleUpdateTask = async (taskData: any) => {
+    if (!selectedTask) return;
+    
+    try {
+      await updateTask(selectedTask.id, taskData);
+      setShowEditModal(false);
+      setSelectedTask(null);
+      toast.success('Task updated successfully!');
+      // Refresh project and tasks
+      if (id) {
+        fetchProjectById(parseInt(id));
+        fetchTasks({});
+      }
+    } catch (err) {
+      toast.error('Failed to update task');
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await deleteTask(taskId);
+        toast.success('Task deleted successfully!');
+        // Refresh project and tasks
+        if (id) {
+          fetchProjectById(parseInt(id));
+          fetchTasks({});
+        }
+      } catch (err) {
+        toast.error('Failed to delete task');
+      }
+    }
+  };
+
+  const handleToggleStatus = async (task: Task) => {
+    try {
+      await toggleTaskStatus(task);
+      toast.success('Task status updated!');
+      // Refresh project and tasks
+      if (id) {
+        fetchProjectById(parseInt(id));
+        fetchTasks({});
+      }
+    } catch (err) {
+      toast.error('Failed to update task status');
+    }
+  };
+
+  const openEditModal = (task: Task) => {
+    setSelectedTask(task);
+    setShowEditModal(true);
+  };
+
   if (loading && !projectDetail) {
     return (
       <MainLayout>
@@ -65,7 +159,8 @@ const ProjectDetailPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <Alert variant="danger" title="Project not found">
+          <Alert variant="danger">
+            <div className="fw-bold mb-2">Project not found</div>
             <p>{error || 'The project you are looking for does not exist.'}</p>
             <div className="d-flex gap-2 mt-3">
               <Link 
@@ -106,16 +201,16 @@ const ProjectDetailPage: React.FC = () => {
       <Container className="py-4">
         {/* Breadcrumb */}
         <Breadcrumb className="mb-4">
-  <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
-    Dashboard
-  </Breadcrumb.Item>
-  <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/projects' }}>
-    Projects
-  </Breadcrumb.Item>
-  <Breadcrumb.Item active>
-    {projectDetail.title}
-  </Breadcrumb.Item>
-</Breadcrumb>
+          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
+            Dashboard
+          </Breadcrumb.Item>
+          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/projects' }}>
+            Projects
+          </Breadcrumb.Item>
+          <Breadcrumb.Item active>
+            {projectDetail.title}
+          </Breadcrumb.Item>
+        </Breadcrumb>
 
         {/* Header */}
         <div className="d-flex justify-content-between align-items-start mb-4">
@@ -247,9 +342,13 @@ const ProjectDetailPage: React.FC = () => {
               </Card.Header>
               <Card.Body>
                 <div className="d-grid gap-2">
-                  <Link to={`/projects/${id}/tasks/new`} className="btn btn-primary">
+                  <button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="btn btn-primary"
+                  >
+                    <Plus className="me-2" />
                     Add New Task
-                  </Link>
+                  </button>
                   <Link to={`/projects/${id}/tasks`} className="btn btn-outline-primary">
                     View All Tasks
                   </Link>
@@ -262,53 +361,87 @@ const ProjectDetailPage: React.FC = () => {
           </Col>
         </Row>
 
-        <Card className="shadow-sm">
-          <Card.Header className="bg-white">
+        {/* Tasks Section */}
+        <Card className="shadow-sm mb-4">
+          <Card.Header className="bg-white d-flex justify-content-between align-items-center">
             <h5 className="mb-0">Project Tasks</h5>
-          </Card.Header>
-          <Card.Body className="text-center py-5">
-            <h4 className="mb-3">Tasks Management Coming Soon</h4>
-            <p className="text-muted mb-4">
-              The tasks management feature is currently being developed. You'll be able to:
-            </p>
-            <Row>
-              <Col md={4}>
-                <div className="mb-3">
-                  <div className="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
-                    style={{ width: '60px', height: '60px' }}>
-                    <span className="h4 mb-0">1</span>
-                  </div>
-                  <h6>Create Tasks</h6>
-                  <small className="text-muted">Add new tasks with due dates</small>
-                </div>
-              </Col>
-              <Col md={4}>
-                <div className="mb-3">
-                  <div className="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
-                    style={{ width: '60px', height: '60px' }}>
-                    <span className="h4 mb-0">2</span>
-                  </div>
-                  <h6>Track Progress</h6>
-                  <small className="text-muted">Mark tasks as completed</small>
-                </div>
-              </Col>
-              <Col md={4}>
-                <div className="mb-3">
-                  <div className="bg-info bg-opacity-10 text-info rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
-                    style={{ width: '60px', height: '60px' }}>
-                    <span className="h4 mb-0">3</span>
-                  </div>
-                  <h6>Filter & Search</h6>
-                  <small className="text-muted">Find tasks easily</small>
-                </div>
-              </Col>
-            </Row>
-            <Link to="/projects" className="btn btn-outline-primary mt-3 d-flex align-items-center justify-content-center gap-2 mx-auto" style={{ width: 'fit-content' }}>
-              <ArrowLeft />
-              Back to Projects
+            <Link 
+              to={`/projects/${id}/tasks`}
+              className="btn btn-sm btn-outline-primary"
+            >
+              View All Tasks
             </Link>
+          </Card.Header>
+          <Card.Body>
+            {tasksLoading ? (
+              <div className="text-center py-4">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading tasks...</span>
+                </div>
+                <p className="mt-2 text-muted">Loading tasks...</p>
+              </div>
+            ) : tasksError ? (
+              <Alert variant="warning">
+                <div className="fw-bold mb-2">Unable to load tasks</div>
+                <p>{tasksError}</p>
+              </Alert>
+            ) : tasks.length === 0 ? (
+              <div className="text-center py-4">
+                <CheckSquare size={48} className="text-muted mb-3" />
+                <h5>No tasks yet</h5>
+                <p className="text-muted mb-4">Add tasks to track your project progress</p>
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn btn-primary"
+                >
+                  <Plus className="me-2" />
+                  Create First Task
+                </button>
+              </div>
+            ) : (
+              <>
+                <TaskList
+                  tasks={tasks.slice(0, 5)} // Show only 5 tasks
+                  onToggleStatus={handleToggleStatus}
+                  onEditTask={openEditModal}
+                  onDeleteTask={handleDeleteTask}
+                  viewMode="compact"
+                />
+                {tasks.length > 5 && (
+                  <div className="text-center mt-3">
+                    <Link 
+                      to={`/projects/${id}/tasks`}
+                      className="btn btn-outline-primary"
+                    >
+                      View All {tasks.length} Tasks
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
           </Card.Body>
         </Card>
+
+        {/* Add Task Form Modal */}
+        <TaskForm
+          show={showCreateModal}
+          onHide={() => setShowCreateModal(false)}
+          onSubmit={handleCreateTask}
+          loading={tasksLoading}
+          projectId={projectId}
+        />
+
+        {/* Edit Task Modal */}
+        <TaskForm
+          show={showEditModal}
+          onHide={() => {
+            setShowEditModal(false);
+            setSelectedTask(null);
+          }}
+          onSubmit={handleUpdateTask}
+          loading={tasksLoading}
+          task={selectedTask}
+        />
 
         {confirmDelete && (
           <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>

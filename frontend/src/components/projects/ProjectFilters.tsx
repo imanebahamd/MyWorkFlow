@@ -6,7 +6,7 @@ import Input from '../common/Input';
 
 export interface FilterOptions {
   search: string;
-  sortBy: 'title' | 'createdAt' | 'updatedAt' | 'progressPercentage';
+  sortBy: 'title' | 'createdAt' | 'updatedAt' ;
   sortDirection: 'asc' | 'desc';
 }
 
@@ -96,9 +96,9 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({
               <span className="text-muted small">Sort by:</span>
               <div className="d-flex gap-1">
                 {[
-                  { label: 'Date', value: 'createdAt' as const },
+                  { label: 'Creation Date', value: 'createdAt' as const },
                   { label: 'Title', value: 'title' as const },
-                  { label: 'Progress', value: 'progressPercentage' as const },
+                  { label: 'Last Updated', value: 'updatedAt' as const },
                 ].map((option) => (
                   <Button
                     key={option.value}
