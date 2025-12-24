@@ -12,7 +12,6 @@ import type { Project } from '../../types/project.types';
 import { formatDate } from '../../utils/formatters';
 import Dropdown from '../common/Dropdown';
 
-
 interface ProjectCardProps {
   project: Project;
   onEdit?: (project: Project) => void;
@@ -38,8 +37,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className="h-100 shadow-sm border-0 card-hover">
+    <Card className="h-100 shadow-sm border-0 card-hover project-item glass-effect">
       <Card.Body className="d-flex flex-column">
+        {/* Header */}
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
             <Badge 
@@ -48,7 +48,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             >
               {getStatusText(project.progressPercentage)}
             </Badge>
-            <h5 className="card-title mb-1">
+            <h5 className="card-title mb-1 gradient-text">
               <Link 
                 to={`/projects/${project.id}`} 
                 className="text-decoration-none text-dark"
@@ -62,7 +62,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               </p>
             )}
           </div>
-          
+
           {(onEdit || onDelete) && (
             <Dropdown align="end">
               <Dropdown.Toggle variant="light" size="sm" className="border-0">
@@ -89,7 +89,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
         </div>
 
-        {/* Progress Section */}
+        {/* Progress */}
         <div className="mt-auto">
           <div className="d-flex justify-content-between align-items-center mb-2">
             <div className="d-flex align-items-center gap-1">
@@ -105,24 +105,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <ProgressBar 
             now={project.progressPercentage} 
             variant={getStatusColor(project.progressPercentage)}
-            className="mb-3"
-            style={{ height: '6px' }}
+            className="mb-3 rounded-pill"
+            style={{ height: '8px' }}
           />
         </div>
 
         {/* Footer */}
         <div className="d-flex justify-content-between align-items-center border-top pt-3">
-  <small className="text-muted d-flex align-items-center gap-1">
-    <Calendar size={12} />
-    Updated {formatDate(project.updatedAt)}
-  </small>
-  <Link
-    to={`/projects/${project.id}`}
-    className="btn btn-outline-primary btn-sm"
-  >
-    View Details
-  </Link>
-</div>
+          <small className="text-muted d-flex align-items-center gap-1">
+            <Calendar size={12} />
+            Updated {formatDate(project.updatedAt)}
+          </small>
+          <Link
+            to={`/projects/${project.id}`}
+            className="btn btn-outline-primary btn-sm modern-btn"
+          >
+            View Details
+          </Link>
+        </div>
       </Card.Body>
     </Card>
   );

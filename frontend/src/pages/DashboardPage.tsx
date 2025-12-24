@@ -1,130 +1,243 @@
-import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Card, Badge, Button as BootstrapButton } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import {
+  Plus,
+  ArrowClockwise,
+  LightningCharge,
+  Calendar,
+  BarChart,
+  Bullseye,
+  ExclamationTriangle,
+  ListTask,
+  CheckCircle,
+  Folder
+} from 'react-bootstrap-icons';
+import { toast } from 'react-hot-toast';
+
 import MainLayout from '../components/layout/MainLayout';
-import Button from '../components/common/Button';
-import { Plus, Folder, CheckSquare, People } from 'react-bootstrap-icons';
+import StatsCards from '../components/dashboard/StatsCards';
+import ActivityFeed from '../components/dashboard/ActivityFeed';
+import WeeklyChart from '../components/dashboard/WeeklyChart';
+import Loader from '../components/common/Loader';
+import AlertMessage from '../components/common/Alert';
+
+import { useDashboard } from '../hooks/useDashboard';
+import { useProjects } from '../hooks/useProjects';
+import { useTasks } from '../hooks/useTasks';
 
 const DashboardPage: React.FC = () => {
-  const stats = [
-    { title: 'Total Projects', value: '12', icon: <Folder />, color: 'primary' },
-    { title: 'Active Tasks', value: '24', icon: <CheckSquare />, color: 'success' },
-    { title: 'Completed Tasks', value: '48', icon: <CheckSquare />, color: 'info' },
-    { title: 'Team Members', value: '8', icon: <People />, color: 'warning' },
-  ];
+  const {
+    dashboardData,
+    stats,
+    loading,
+    error,
+    lastUpdated,
+    refresh,
+    clearError,
+  } = useDashboard();
+
+  const { projects, fetchProjects } = useProjects();
+  const { fetchTasks } = useTasks();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchProjects({ page: 0, size: 3 });
+    fetchTasks({ page: 0, size: 5 });
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refresh();
+      await fetchProjects({ page: 0, size: 3 });
+      await fetchTasks({ page: 0, size: 5 });
+      toast.success('Dashboard updated!');
+    } catch {
+      toast.error('Failed to refresh dashboard');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const hasData = stats && (stats.totalProjects > 0 || stats.totalTasks > 0);
+
+  const weeklyChartData = stats ? {
+    labels: Object.keys(stats.weeklyTaskCompletion || {}),
+    datasets: [{
+      label: 'Tasks Completed',
+      data: Object.values(stats.weeklyTaskCompletion || {}),
+      borderColor: '#F97316',
+      backgroundColor: 'rgba(249,115,22,0.1)',
+      tension: 0.4,
+      fill: true,
+    }]
+  } : null;
+
+  if (loading && !dashboardData) {
+    return (
+      <MainLayout>
+        <Loader fullScreen message="Loading your dashboard..." />
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
-      <Container className="py-4">
-        {/* Header */}
+      <Container fluid className="py-4">
+
+        {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h1 className="h2 mb-2">Dashboard</h1>
-            <p className="text-muted mb-0">Welcome back! Here's what's happening today.</p>
+            <h1 className="fw-bold mb-1">Dashboard Overview</h1>
+            <p className="text-muted mb-0 d-flex align-items-center">
+              <LightningCharge className="me-2" color="#F97316" />
+              Your productivity at a glance
+              {lastUpdated && (
+                <span className="ms-3 small">
+                  <Calendar size={12} className="me-1" />
+                  {new Date(lastUpdated).toLocaleTimeString()}
+                </span>
+              )}
+            </p>
           </div>
-          <Button>
-            <Plus className="me-2" />
-            New Project
-          </Button>
+
+          <div className="d-flex gap-2">
+            <BootstrapButton
+              variant="outline-primary"
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <ArrowClockwise className="me-2" />
+              Refresh
+            </BootstrapButton>
+
+            <Link to="/projects?create=true" className="btn btn-primary">
+              <Plus className="me-2" />
+              New Project
+            </Link>
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        <Row className="mb-4">
-          {stats.map((stat, index) => (
-            <Col key={index} md={3} className="mb-3">
-              <Card className="border-0 shadow-sm card-hover">
-                <Card.Body className="d-flex align-items-center">
-                  <div 
-                    className={`rounded-circle d-flex align-items-center justify-content-center me-3`}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      backgroundColor: `var(--${stat.color}-color)`,
-                      color: 'white',
-                    }}
-                  >
-                    {stat.icon}
-                  </div>
-                  <div>
-                    <h3 className="h2 mb-0">{stat.value}</h3>
-                    <p className="text-muted mb-0">{stat.title}</p>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        {error && (
+          <AlertMessage variant="danger" dismissible onClose={clearError}>
+            {error}
+          </AlertMessage>
+        )}
 
-        {/* Recent Projects & Tasks */}
-        <Row>
-          <Col lg={6} className="mb-4">
-            <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Recent Projects</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="list-group list-group-flush">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="list-group-item border-0 px-0 py-3">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <h6 className="mb-1">Project {i}</h6>
-                          <p className="text-muted small mb-0">Last updated 2 days ago</p>
-                        </div>
-                        <span className="badge bg-primary">Active</span>
+        {/* STATS */}
+        {stats && (
+          <div className="mb-4">
+            <StatsCards
+              stats={{
+                totalProjects: stats.totalProjects,
+                activeProjects: stats.activeProjects,
+                completedProjects: stats.completedProjects,
+                totalTasks: stats.totalTasks,
+                completedTasks: stats.completedTasks,
+                inProgressTasks: stats.inProgressTasks,
+                todoTasks: stats.todoTasks,
+                overdueTasks: stats.overdueTasks,
+                averageProgress: stats.averageProjectProgress,
+              }}
+              loading={loading}
+            />
+          </div>
+        )}
+
+        {hasData ? (
+          <>
+            {/* MAIN ZONE */}
+            <Row className="mb-4">
+              <Col xl={8} lg={7}>
+                <Card className="h-100 shadow-sm border-0">
+                  <Card.Header className="bg-white fw-bold">
+                    <BarChart className="me-2" color="#F97316" />
+                    Weekly Performance
+                  </Card.Header>
+                  <Card.Body>
+                    {weeklyChartData && <WeeklyChart data={weeklyChartData} height={260} />}
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              <Col xl={4} lg={5}>
+                <Card className="h-100 shadow-sm border-0">
+                  <Card.Header className="bg-white fw-bold">
+                    <Bullseye className="me-2" color="#F97316" />
+                    Focus Areas
+                  </Card.Header>
+                  <Card.Body className="d-flex flex-column gap-3">
+                    {stats.overdueTasks > 0 && (
+                      <div className="p-3 rounded bg-danger bg-opacity-10">
+                        <ExclamationTriangle className="me-2 text-danger" />
+                        {stats.overdueTasks} overdue tasks
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col lg={6} className="mb-4">
-            <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Upcoming Tasks</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="list-group list-group-flush">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="list-group-item border-0 px-0 py-3">
-                      <div className="d-flex align-items-center">
-                        <input 
-                          type="checkbox" 
-                          className="form-check-input me-3" 
-                          style={{ transform: 'scale(1.2)' }}
-                        />
-                        <div>
-                          <h6 className="mb-1">Task {i}</h6>
-                          <p className="text-muted small mb-0">Due tomorrow</p>
-                        </div>
+                    )}
+                    {stats.todoTasks > 0 && (
+                      <div className="p-3 rounded bg-secondary bg-opacity-10">
+                        <ListTask className="me-2" />
+                        {stats.todoTasks} tasks to start
                       </div>
+                    )}
+                    <div className="p-3 rounded bg-success bg-opacity-10">
+                      <CheckCircle className="me-2 text-success" />
+                      {Math.round(stats.averageProjectProgress)}% average progress
                     </div>
-                  ))}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
 
-        {/* Quick Links */}
-        <Card className="border-0 shadow-sm">
-          <Card.Body className="text-center py-5">
-            <h4 className="mb-3">Get Started</h4>
-            <p className="text-muted mb-4">
-              Create your first project or explore the features
-            </p>
-            <div className="d-flex justify-content-center gap-3">
-              <Button variant="primary">
-                <Plus className="me-2" />
-                New Project
-              </Button>
-              <Button variant="outline-primary">
-                View Documentation
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
+            {/* SECONDARY ZONE */}
+            <Row>
+              <Col lg={6}>
+                <ActivityFeed
+                  activities={stats.recentActivities || []}
+                  loading={loading}
+                  maxItems={5}
+                />
+              </Col>
+
+              <Col lg={6}>
+                <Card className="shadow-sm border-0">
+                  <Card.Header className="bg-white fw-bold d-flex justify-content-between">
+                    <span>
+                      <Folder className="me-2" color="#F97316" />
+                      Recent Projects
+                    </span>
+                    <Link to="/projects">View all</Link>
+                  </Card.Header>
+                  <Card.Body>
+                    <Row>
+                      {projects.map(p => (
+                        <Col md={6} key={p.id} className="mb-3">
+                          <Card className="border">
+                            <Card.Body>
+                              <strong>{p.title}</strong>
+                              <Badge className="float-end">{p.progressPercentage}%</Badge>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          /* EMPTY STATE */
+          <Card className="text-center shadow-sm border-0 py-5">
+            <h3 className="fw-bold">Welcome to MyWorkFlow</h3>
+            <p className="text-muted">Create your first project to get started</p>
+            <Link to="/projects?create=true" className="btn btn-primary">
+              <Plus className="me-2" />
+              Create Project
+            </Link>
+          </Card>
+        )}
       </Container>
     </MainLayout>
   );

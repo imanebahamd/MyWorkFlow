@@ -1,5 +1,4 @@
 import React from 'react';
-import { Image } from 'react-bootstrap';
 import { getInitials } from '../../utils/formatters';
 
 interface UserAvatarProps {
@@ -13,7 +12,6 @@ interface UserAvatarProps {
 const UserAvatar: React.FC<UserAvatarProps> = ({
   firstName,
   lastName,
-  profileImageUrl,
   size = 'md',
   className = '',
 }) => {
@@ -26,29 +24,17 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   const dimensions = sizeMap[size];
 
-  if (profileImageUrl) {
-    return (
-      <Image
-        src={profileImageUrl}
-        roundedCircle
-        width={dimensions.width}
-        height={dimensions.height}
-        className={`object-fit-cover ${className}`}
-        alt={`${firstName} ${lastName}`}
-      />
-    );
-  }
-
   return (
     <div
       className={`rounded-circle d-flex align-items-center justify-content-center ${className}`}
       style={{
         width: dimensions.width,
         height: dimensions.height,
-        backgroundColor: '#3b82f6',
+        background: 'linear-gradient(135deg, #F97316, #FB7185)',
         color: 'white',
         fontWeight: 'bold',
         fontSize: dimensions.fontSize,
+        flexShrink: 0,
       }}
     >
       {getInitials(firstName, lastName)}

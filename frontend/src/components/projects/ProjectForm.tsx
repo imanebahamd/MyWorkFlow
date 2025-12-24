@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import type { Project, CreateProjectRequest, UpdateProjectRequest } from '../../types/project.types';
 import Button from '../common/Button';
 import Input from '../common/Input';
+import { LightningCharge } from 'react-bootstrap-icons';
 
 interface ProjectFormProps {
   show: boolean;
@@ -87,54 +88,80 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>{title}</Modal.Title>
+    <Modal 
+      show={show} 
+      onHide={handleClose} 
+      centered 
+      backdrop="static"
+      className="modern-modal"
+    >
+      <Modal.Header closeButton className="border-0 pb-0">
+        <Modal.Title className="fw-bold d-flex align-items-center">
+          <LightningCharge className="me-2" color="#F97316" />
+          {title}
+        </Modal.Title>
       </Modal.Header>
-      <Form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Modal.Body>
-          <Input
-            label="Project Title"
-            placeholder="Enter project title"
-            error={errors.title?.message}
-            disabled={loading}
-            {...register('title')}
-          />
+      <Modal.Body className="pt-3">
+        <Form onSubmit={handleSubmit(handleFormSubmit)} className="p-2">
+          <div className="mb-4">
+            <Input
+              label="Project Title"
+              placeholder="Enter project title"
+              error={errors.title?.message}
+              disabled={loading}
+              {...register('title')}
+              className="modern-input"
+              icon={<i className="bi bi-card-heading"></i>}
+            />
+          </div>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Description (Optional)</Form.Label>
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold d-flex align-items-center">
+              <i className="bi bi-text-paragraph me-2"></i>
+              Description (Optional)
+            </Form.Label>
             <Form.Control
               as="textarea"
               rows={4}
               placeholder="Enter project description"
               disabled={loading}
               {...register('description')}
+              className="modern-input border-0 shadow-sm"
+              style={{ 
+                background: 'var(--bg-secondary)',
+                borderRadius: '10px',
+                resize: 'vertical'
+              }}
             />
             {errors.description && (
-              <Form.Text className="text-danger">
+              <Form.Text className="text-danger mt-2">
+                <i className="bi bi-exclamation-circle me-1"></i>
                 {errors.description.message}
               </Form.Text>
             )}
           </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="outline-secondary"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            loading={loading}
-            disabled={!isDirty || loading}
-          >
-            {project ? 'Update Project' : 'Create Project'}
-          </Button>
-        </Modal.Footer>
-      </Form>
+
+          <div className="d-flex gap-2 justify-content-end pt-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              onClick={handleClose}
+              disabled={loading}
+              className="px-4"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={!isDirty || loading}
+              className="px-4 modern-btn"
+            >
+              {project ? 'Update Project' : 'Create Project'}
+            </Button>
+          </div>
+        </Form>
+      </Modal.Body>
     </Modal>
   );
 };

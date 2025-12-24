@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Badge, Breadcrumb, Button as BootstrapButton } from 'react-bootstrap';
+import { Container, Row, Col, Badge,  Button as BootstrapButton } from 'react-bootstrap';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft,
@@ -115,7 +115,7 @@ const TaskDetailPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <Loader fullScreen />
+          <Loader fullScreen message="Loading task..." />
         </Container>
       </MainLayout>
     );
@@ -125,21 +125,13 @@ const TaskDetailPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <AlertMessage variant="danger" title="Task not found">
-            <p>{error || 'The task you are looking for does not exist.'}</p>
-            <div className="d-flex gap-2 mt-3">
-              <Link 
-                to="/tasks" 
-                className="btn btn-outline-primary d-flex align-items-center gap-2"
-              >
-                <ArrowLeft />
+          <AlertMessage variant="danger">
+            <div className="fw-bold mb-2">Task not found</div>
+            <p className="mb-3">{error || 'The task you are looking for does not exist.'}</p>
+            <div className="d-flex gap-2">
+              <Link to="/tasks" className="btn btn-outline-primary">
+                <ArrowLeft size={16} className="me-2" />
                 Back to Tasks
-              </Link>
-              <Link 
-                to="/projects" 
-                className="btn btn-primary"
-              >
-                View Projects
               </Link>
             </div>
           </AlertMessage>
@@ -152,110 +144,96 @@ const TaskDetailPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <Container className="py-4">
-        {/* Breadcrumb */}
-        <Breadcrumb className="mb-4">
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
-            Dashboard
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/projects' }}>
-            Projects
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: `/projects/${taskDetail.project.id}` }}>
-            {taskDetail.project.title}
-          </Breadcrumb.Item>
-          <Breadcrumb.Item active>
-            {taskDetail.title}
-          </Breadcrumb.Item>
-        </Breadcrumb>
-
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-start mb-4">
-          <div>
-            <div className="d-flex align-items-center gap-2 mb-2">
-              {getStatusIcon(taskDetail.status)}
-              <h1 className="h2 mb-0">{taskDetail.title}</h1>
-              <Badge bg={getStatusColor(taskDetail.status)}>
-                {taskDetail.status.replace('_', ' ')}
-              </Badge>
-              {isOverdue && (
-                <Badge bg="danger">Overdue</Badge>
-              )}
-            </div>
-            <p className="text-muted mb-0">
-              In project: <Link to={`/projects/${taskDetail.project.id}`} className="text-decoration-none">
-                {taskDetail.project.title}
-              </Link>
-            </p>
-          </div>
+      <Container fluid className="py-4 px-lg-4">
+        {/* HEADER */}
+        <div className="mb-4">
           
-          <div className="d-flex gap-2">
-            <Link 
-              to={`/tasks/${id}/edit`}
-              className="btn btn-outline-primary d-flex align-items-center gap-2"
-            >
-              <Pencil />
-              Edit
-            </Link>
-            <BootstrapButton
-              variant="danger"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash className="me-2" />
-                  Delete
-                </>
-              )}
-            </BootstrapButton>
+
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            <div className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center gap-2 mb-2">
+                {getStatusIcon(taskDetail.status)}
+                <h1 className="fw-bold mb-0">{taskDetail.title}</h1>
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <Badge bg={getStatusColor(taskDetail.status)}>
+                  {taskDetail.status.replace('_', ' ')}
+                </Badge>
+                {isOverdue && (
+                  <Badge bg="danger">Overdue</Badge>
+                )}
+                <span className="text-muted">·</span>
+                <Link to={`/projects/${taskDetail.project.id}`} className="text-muted text-decoration-none">
+                  {taskDetail.project.title}
+                </Link>
+              </div>
+            </div>
+            
+            <div className="d-flex gap-2">
+              <Link 
+                to={`/tasks/${id}/edit`}
+                className="btn btn-outline-primary d-flex align-items-center gap-2"
+              >
+                <Pencil size={16} />
+                Edit
+              </Link>
+              <BootstrapButton
+                variant="outline-danger"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash size={16} className="me-2" />
+                    Delete
+                  </>
+                )}
+              </BootstrapButton>
+            </div>
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-lg-8">
-            {/* Description Card */}
-            <Card className="shadow-sm mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Description</h5>
-              </Card.Header>
-              <Card.Body>
-                {taskDetail.description ? (
-                  <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-                    {taskDetail.description}
-                  </p>
-                ) : (
-                  <p className="text-muted mb-0">No description provided.</p>
-                )}
-              </Card.Body>
-            </Card>
-          </div>
+        {/* MAIN CONTENT */}
+        <Row>
+          {/* Description Section */}
+          <Col lg={8}>
+            <div className="glass-effect p-4 rounded-3 mb-4">
+              <h5 className="fw-bold mb-3">Description</h5>
+              {taskDetail.description ? (
+                <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                  {taskDetail.description}
+                </p>
+              ) : (
+                <p className="text-muted mb-0 fst-italic">No description provided.</p>
+              )}
+            </div>
+          </Col>
 
-          <div className="col-lg-4">
-            {/* Details Card */}
-            <Card className="shadow-sm mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Task Details</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Due Date</small>
+          {/* Sidebar */}
+          <Col lg={4}>
+            {/* Task Details */}
+            <div className="glass-effect p-4 rounded-3 mb-4">
+              <h5 className="fw-bold mb-4">Task Details</h5>
+              
+              <div className="d-flex flex-column gap-3">
+                <div>
+                  <small className="text-muted d-block mb-1">Due Date</small>
                   <div className="d-flex align-items-center gap-2">
                     <Calendar size={14} className="text-muted" />
-                    <span className={isOverdue ? 'text-danger fw-bold' : ''}>
+                    <span className={isOverdue ? 'text-danger fw-medium' : ''}>
                       {taskDetail.dueDate ? formatDueDate(taskDetail.dueDate) : 'No due date'}
                     </span>
                   </div>
                 </div>
                 
-                <div className="mb-3">
-                  <small className="text-muted d-block">Status</small>
-                  <div className="d-flex gap-1 mt-1">
+                <div>
+                  <small className="text-muted d-block mb-2">Status</small>
+                  <div className="d-flex gap-2 flex-wrap">
                     {Object.values(TaskStatus).map(status => (
                       <BootstrapButton
                         key={status}
@@ -271,77 +249,75 @@ const TaskDetailPage: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="mb-3">
-                  <small className="text-muted d-block">Created</small>
+                <div>
+                  <small className="text-muted d-block mb-1">Created</small>
                   <div className="d-flex align-items-center gap-2">
                     <Clock size={14} className="text-muted" />
                     <span>{formatDate(taskDetail.createdAt)}</span>
                   </div>
                 </div>
                 
-                <div className="mb-3">
-                  <small className="text-muted d-block">Last Updated</small>
+                <div>
+                  <small className="text-muted d-block mb-1">Last Updated</small>
                   <div className="d-flex align-items-center gap-2">
                     <Clock size={14} className="text-muted" />
                     <span>{formatDate(taskDetail.updatedAt)}</span>
                   </div>
                 </div>
-              </Card.Body>
-            </Card>
+              </div>
+            </div>
 
             {/* Quick Actions */}
-            <Card className="shadow-sm">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Quick Actions</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="d-grid gap-2">
-                  <BootstrapButton
-                    variant={taskDetail.status === TaskStatus.DONE ? 'secondary' : 'success'}
-                    onClick={handleMarkComplete}
-                    disabled={isUpdating || taskDetail.status === TaskStatus.DONE}
-                  >
-                    {isUpdating ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Updating...
-                      </>
-                    ) : taskDetail.status === TaskStatus.DONE ? (
-                      <>
-                        <CheckCircle className="me-2" />
-                        Task Completed
-                      </>
-                    ) : (
-                      'Mark as Completed'
-                    )}
-                  </BootstrapButton>
-                  
-                  <Link
-                    to={`/projects/${taskDetail.project.id}/tasks`}
-                    className="btn btn-outline-primary text-decoration-none"
-                  >
-                    View All Project Tasks
-                  </Link>
-                  
-                  <Link
-                    to={`/projects/${taskDetail.project.id}`}
-                    className="btn btn-outline-secondary text-decoration-none"
-                  >
-                    Go to Project
-                  </Link>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        </div>
+            <div className="glass-effect p-4 rounded-3">
+              <h5 className="fw-bold mb-4">Quick Actions</h5>
+              
+              <div className="d-grid gap-2">
+                <BootstrapButton
+                  variant={taskDetail.status === TaskStatus.DONE ? 'secondary' : 'success'}
+                  onClick={handleMarkComplete}
+                  disabled={isUpdating || taskDetail.status === TaskStatus.DONE}
+                >
+                  {isUpdating ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Updating...
+                    </>
+                  ) : taskDetail.status === TaskStatus.DONE ? (
+                    <>
+                      <CheckCircle size={16} className="me-2" />
+                      Completed
+                    </>
+                  ) : (
+                    'Mark as Completed'
+                  )}
+                </BootstrapButton>
+                
+                <Link
+                  to={`/projects/${taskDetail.project.id}/tasks`}
+                  className="btn btn-outline-primary"
+                >
+                  View All Tasks
+                </Link>
+                
+                <Link
+                  to={`/projects/${taskDetail.project.id}`}
+                  className="btn btn-outline-secondary"
+                >
+                  Go to Project
+                </Link>
+              </div>
+            </div>
+          </Col>
+        </Row>
 
-        {/* Back Button */}
+        {/* BACK BUTTON */}
         <div className="mt-4">
           <Link 
             to={`/projects/${taskDetail.project.id}/tasks`}
-            className="btn btn-outline-primary d-flex align-items-center gap-2 text-decoration-none"
+            className="btn btn-outline-secondary d-flex align-items-center gap-2"
+            style={{ width: 'fit-content' }}
           >
-            <ArrowLeft />
+            <ArrowLeft size={16} />
             Back to Project Tasks
           </Link>
         </div>

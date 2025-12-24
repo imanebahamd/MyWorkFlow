@@ -66,10 +66,35 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="auth-form-container">
-      <div className="text-center mb-4">
-        <h2>Create Account</h2>
-        <p className="text-muted">Join our platform today</p>
+    <div>
+      <div 
+        className="text-center mb-3"
+        style={{
+          paddingBottom: '15px',
+          borderBottom: '2px solid rgba(254, 215, 170, 0.5)',
+        }}
+      >
+        <h2 
+          style={{ 
+            fontSize: '24px',
+            fontWeight: '700',
+            color: '#1F2933',
+            marginBottom: '6px',
+            letterSpacing: '-0.5px',
+          }}
+        >
+          Create Account
+        </h2>
+        <p 
+          style={{ 
+            color: '#52606D',
+            fontSize: '13px',
+            fontWeight: '500',
+            margin: 0,
+          }}
+        >
+          Fill in the details below to get started
+        </p>
       </div>
 
       {error && (
@@ -85,80 +110,100 @@ const RegisterForm: React.FC = () => {
       )}
 
       <Form onSubmit={handleSubmit(onSubmit)}>
+        {/* Row 1: First Name & Last Name */}
         <div className="row">
-          <div className="col-md-6">
+          <div className="col-6">
             <Input
               label="First Name"
-              placeholder="Enter your first name"
+              placeholder="John"
               error={errors.firstName?.message}
               {...register('firstName')}
             />
           </div>
-          <div className="col-md-6">
+          <div className="col-6">
             <Input
               label="Last Name"
-              placeholder="Enter your last name"
+              placeholder="Doe"
               error={errors.lastName?.message}
               {...register('lastName')}
             />
           </div>
         </div>
 
+        {/* Row 2: Email (full width) */}
         <Input
           label="Email Address"
           type="email"
-          placeholder="Enter your email"
+          placeholder="your.email@example.com"
           error={errors.email?.message}
           {...register('email')}
         />
 
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-          error={errors.password?.message}
-          {...register('password')}
-        />
+        {/* Row 3: Password & Confirm Password */}
+        <div className="row">
+          <div className="col-6">
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Min. 6 chars"
+              error={errors.password?.message}
+              {...register('password')}
+            />
+          </div>
+          <div className="col-6">
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="Re-enter"
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
+            />
+          </div>
+        </div>
 
-        <Input
-          label="Confirm Password"
-          type="password"
-          placeholder="Confirm your password"
-          error={errors.confirmPassword?.message}
-          {...register('confirmPassword')}
-        />
-
-        <Form.Group className="mb-4">
-          <Form.Check
-            type="checkbox"
-            label={
-              <>
-                I agree to the{' '}
-                <a href="/terms" className="text-decoration-none">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" className="text-decoration-none">
-                  Privacy Policy
-                </a>
-              </>
-            }
-            required
-          />
-        </Form.Group>
-
+        {/* Submit Button */}
         <Button
           type="submit"
           loading={isLoading}
-          className="w-100 py-2"
+          className="w-100"
+          style={{
+            padding: '12px',
+            fontSize: '15px',
+            marginBottom: '15px',
+            marginTop: '5px',
+          }}
         >
           Create Account
         </Button>
 
-        <div className="text-center mt-4">
-          <p className="text-muted">
+        {/* Footer */}
+        <div 
+          className="text-center"
+          style={{
+            padding: '15px 0 0',
+            borderTop: '1px solid rgba(254, 215, 170, 0.5)',
+          }}
+        >
+          <p 
+            style={{ 
+              color: '#52606D',
+              fontSize: '13px',
+              fontWeight: '500',
+              margin: 0,
+            }}
+          >
             Already have an account?{' '}
-            <a href="/login" className="text-decoration-none fw-bold">
+            <a 
+              href="/login" 
+              className="text-decoration-none"
+              style={{
+                color: '#F97316',
+                fontWeight: '700',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#EA580C'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#F97316'}
+            >
               Sign in
             </a>
           </p>

@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Breadcrumb } from 'react-bootstrap';
+import { Container, Row, Col, Badge} from 'react-bootstrap';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft,
-  Calendar,
-  Person,
-  ThreeDots,
+  
+  
   Pencil,
-  Trash,
+  
   Plus,
-  CheckSquare
+ 
+
+  ArrowRight,
+  
 } from 'react-bootstrap-icons';
 import { toast } from 'react-hot-toast';
 import MainLayout from '../components/layout/MainLayout';
 import ProgressBar from '../components/projects/ProgressBar';
 import Loader from '../components/common/Loader';
 import Alert from '../components/common/Alert';
-import Dropdown from '../components/common/Dropdown';
 import TaskList from '../components/tasks/TaskList';
 import TaskForm from '../components/tasks/TaskForm';
 import { useProjects } from '../hooks/useProjects';
@@ -53,10 +54,25 @@ const ProjectDetailPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
+  const formatRelativeTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 1) return 'Just now';
+      if (diffInHours < 24) return `${diffInHours}h ago`;
+      if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+      return formatDate(dateString);
+    } catch (error) {
+      return formatDate(dateString);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchProjectById(parseInt(id));
-      fetchTasks({}); // Pass empty filters to get all tasks
+      fetchTasks({});
     }
   }, [id]);
 
@@ -82,7 +98,6 @@ const ProjectDetailPage: React.FC = () => {
       });
       setShowCreateModal(false);
       toast.success('Task created successfully!');
-      // Refresh project and tasks
       if (id) {
         fetchProjectById(parseInt(id));
         fetchTasks({});
@@ -100,7 +115,6 @@ const ProjectDetailPage: React.FC = () => {
       setShowEditModal(false);
       setSelectedTask(null);
       toast.success('Task updated successfully!');
-      // Refresh project and tasks
       if (id) {
         fetchProjectById(parseInt(id));
         fetchTasks({});
@@ -115,7 +129,6 @@ const ProjectDetailPage: React.FC = () => {
       try {
         await deleteTask(taskId);
         toast.success('Task deleted successfully!');
-        // Refresh project and tasks
         if (id) {
           fetchProjectById(parseInt(id));
           fetchTasks({});
@@ -130,7 +143,6 @@ const ProjectDetailPage: React.FC = () => {
     try {
       await toggleTaskStatus(task);
       toast.success('Task status updated!');
-      // Refresh project and tasks
       if (id) {
         fetchProjectById(parseInt(id));
         fetchTasks({});
@@ -145,11 +157,23 @@ const ProjectDetailPage: React.FC = () => {
     setShowEditModal(true);
   };
 
+  const handleRefresh = async () => {
+    try {
+      if (id) {
+        await fetchProjectById(parseInt(id));
+        await fetchTasks({});
+        toast.success('Project refreshed!');
+      }
+    } catch {
+      toast.error('Failed to refresh project');
+    }
+  };
+
   if (loading && !projectDetail) {
     return (
       <MainLayout>
         <Container className="py-4">
-          <Loader fullScreen />
+          <Loader fullScreen message="Loading project details..." />
         </Container>
       </MainLayout>
     );
@@ -159,9 +183,12 @@ const ProjectDetailPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <Alert variant="danger">
-            <div className="fw-bold mb-2">Project not found</div>
-            <p>{error || 'The project you are looking for does not exist.'}</p>
+          <Alert variant="danger" className="glass-effect">
+            <div className="fw-bold mb-2 d-flex align-items-center">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              Project not found
+            </div>
+            <p className="text-muted">{error || 'The project you are looking for does not exist.'}</p>
             <div className="d-flex gap-2 mt-3">
               <Link 
                 to="/projects" 
@@ -172,7 +199,7 @@ const ProjectDetailPage: React.FC = () => {
               </Link>
               <Link 
                 to="/projects" 
-                className="btn btn-primary"
+                className="btn btn-primary modern-btn"
               >
                 View All Projects
               </Link>
@@ -191,238 +218,241 @@ const ProjectDetailPage: React.FC = () => {
   };
 
   const getStatusText = (percentage: number) => {
-    if (percentage === 0) return 'Not started';
-    if (percentage < 100) return 'In progress';
+    if (percentage === 0) return 'Not Started';
+    if (percentage < 100) return 'In Progress';
     return 'Completed';
   };
 
+  const completedTasks = projectDetail.completedTasks || 0;
+  const totalTasks = projectDetail.totalTasks || 0;
+  const remainingTasks = totalTasks - completedTasks;
+
   return (
     <MainLayout>
-      <Container className="py-4">
-        {/* Breadcrumb */}
-        <Breadcrumb className="mb-4">
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
-            Dashboard
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/projects' }}>
-            Projects
-          </Breadcrumb.Item>
-          <Breadcrumb.Item active>
-            {projectDetail.title}
-          </Breadcrumb.Item>
-        </Breadcrumb>
-
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-start mb-4">
-          <div>
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <h1 className="h2 mb-0">{projectDetail.title}</h1>
-              <Badge bg={getStatusColor(projectDetail.progressPercentage)}>
-                {getStatusText(projectDetail.progressPercentage)}
-              </Badge>
-            </div>
-            <p className="text-muted mb-0">{projectDetail.description}</p>
-          </div>
+      <Container fluid className="py-4 px-lg-4">
+        {/* HEADER SECTION */}
+        <div className="mb-4">
+         
           
-          <div className="d-flex gap-2">
-            <Link 
-              to={`/projects/${id}/edit`} 
-              className="btn btn-outline-primary d-flex align-items-center gap-2"
-            >
-              <Pencil />
-              Edit
-            </Link>
-            <Dropdown>
-              <Dropdown.Toggle variant="light" className="border-0">
-                <ThreeDots />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item as={Link} to={`/projects/${id}/tasks`}>
-                  View Tasks
-                </Dropdown.Item>
-                <Dropdown.Item as={Link} to={`/projects/${id}/settings`}>
-                  Project Settings
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item 
-                  onClick={() => setConfirmDelete(true)}
-                  className="text-danger"
-                >
-                  <Trash className="me-2" />
-                  Delete Project
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            <div className="mb-3 mb-md-0">
+              <h1 className="fw-bold mb-2">{projectDetail.title}</h1>
+              <p className="text-muted mb-0">
+                Last updated {formatRelativeTime(projectDetail.updatedAt)}
+              </p>
+            </div>
+            
+            <div className="d-flex gap-2">
+              <button 
+                onClick={handleRefresh}
+                className="btn btn-outline-primary"
+              >
+                Refresh
+              </button>
+              <Link 
+                to={`/projects/${id}/edit`} 
+                className="btn btn-outline-primary d-flex align-items-center gap-2"
+              >
+                <Pencil size={16} />
+                Edit
+              </Link>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="btn btn-primary d-flex align-items-center gap-2"
+              >
+                <Plus size={16} />
+                Add Task
+              </button>
+             
+            </div>
           </div>
         </div>
 
-        {/* Project Info */}
-        <Row className="mb-4">
-          <Col lg={8}>
-            <Card className="shadow-sm mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Project Progress</h5>
-              </Card.Header>
-              <Card.Body>
-                <ProgressBar 
-                  progress={projectDetail.progressPercentage}
-                  showLabel
-                  height={10}
-                  className="mb-3"
-                />
-                <div className="d-flex justify-content-between">
-                  <div className="text-center">
-                    <h4 className="mb-0">{projectDetail.totalTasks}</h4>
-                    <small className="text-muted">Total Tasks</small>
-                  </div>
-                  <div className="text-center">
-                    <h4 className="mb-0">{projectDetail.completedTasks}</h4>
-                    <small className="text-muted">Completed</small>
-                  </div>
-                  <div className="text-center">
-                    <h4 className="mb-0">{projectDetail.totalTasks - projectDetail.completedTasks}</h4>
-                    <small className="text-muted">Remaining</small>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-
-            <Card className="shadow-sm">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Description</h5>
-              </Card.Header>
-              <Card.Body>
-                {projectDetail.description ? (
-                  <p className="mb-0">{projectDetail.description}</p>
-                ) : (
-                  <p className="text-muted mb-0">No description provided.</p>
-                )}
-              </Card.Body>
-            </Card>
+        {/* STATISTICS OVERVIEW */}
+        <Row className="mb-4 g-3">
+          <Col md={3}>
+            <div className="glass-effect p-4 rounded-3 text-center">
+              <small className="text-muted d-block mb-2">Progress</small>
+              <h2 className="fw-bold mb-0">{projectDetail.progressPercentage}%</h2>
+            </div>
           </Col>
-
-          <Col lg={4}>
-            <Card className="shadow-sm mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Project Information</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Created</small>
-                  <div className="d-flex align-items-center gap-2">
-                    <Calendar size={14} className="text-muted" />
-                    <span>{formatDate(projectDetail.createdAt)}</span>
-                  </div>
-                </div>
-                
-                <div className="mb-3">
-                  <small className="text-muted d-block">Last Updated</small>
-                  <div className="d-flex align-items-center gap-2">
-                    <Calendar size={14} className="text-muted" />
-                    <span>{formatDate(projectDetail.updatedAt)}</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <small className="text-muted d-block">Project Owner</small>
-                  <div className="d-flex align-items-center gap-2">
-                    <Person size={14} className="text-muted" />
-                    <span>
-                      {projectDetail.owner.firstName} {projectDetail.owner.lastName}
-                    </span>
-                  </div>
-                  <small className="text-muted">{projectDetail.owner.email}</small>
-                </div>
-              </Card.Body>
-            </Card>
-
-            <Card className="shadow-sm">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">Quick Actions</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="d-grid gap-2">
-                  <button 
-                    onClick={() => setShowCreateModal(true)}
-                    className="btn btn-primary"
-                  >
-                    <Plus className="me-2" />
-                    Add New Task
-                  </button>
-                  <Link to={`/projects/${id}/tasks`} className="btn btn-outline-primary">
-                    View All Tasks
-                  </Link>
-                  <Link to={`/projects/${id}/edit`} className="btn btn-outline-secondary">
-                    Edit Project
-                  </Link>
-                </div>
-              </Card.Body>
-            </Card>
+          <Col md={3}>
+            <div className="glass-effect p-4 rounded-3 text-center">
+              <small className="text-muted d-block mb-2">Completed</small>
+              <h2 className="fw-bold mb-0">{completedTasks}</h2>
+            </div>
+          </Col>
+          <Col md={3}>
+            <div className="glass-effect p-4 rounded-3 text-center">
+              <small className="text-muted d-block mb-2">Remaining</small>
+              <h2 className="fw-bold mb-0">{remainingTasks}</h2>
+            </div>
+          </Col>
+          <Col md={3}>
+            <div className="glass-effect p-4 rounded-3 text-center">
+              <small className="text-muted d-block mb-2">Status</small>
+              <Badge 
+                bg={`${getStatusColor(projectDetail.progressPercentage)}`}
+                className="px-3 py-2"
+              >
+                {getStatusText(projectDetail.progressPercentage)}
+              </Badge>
+            </div>
           </Col>
         </Row>
 
-        {/* Tasks Section */}
-        <Card className="shadow-sm mb-4">
-          <Card.Header className="bg-white d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Project Tasks</h5>
-            <Link 
-              to={`/projects/${id}/tasks`}
-              className="btn btn-sm btn-outline-primary"
-            >
-              View All Tasks
-            </Link>
-          </Card.Header>
-          <Card.Body>
-            {tasksLoading ? (
-              <div className="text-center py-4">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading tasks...</span>
-                </div>
-                <p className="mt-2 text-muted">Loading tasks...</p>
+        {/* MAIN CONTENT */}
+        <Row className="mb-4">
+          {/* Project Information */}
+          <Col lg={8}>
+            {/* Progress Section */}
+            <div className="glass-effect p-4 rounded-3 mb-4">
+              <h5 className="fw-bold mb-3">Project Progress</h5>
+              <ProgressBar 
+                progress={projectDetail.progressPercentage}
+                showLabel={true}
+                height={12}
+                className="mb-3"
+              />
+              <div className="d-flex justify-content-between text-muted small">
+                <span>{completedTasks} of {totalTasks} tasks completed</span>
+                <span>{projectDetail.progressPercentage}%</span>
               </div>
-            ) : tasksError ? (
-              <Alert variant="warning">
-                <div className="fw-bold mb-2">Unable to load tasks</div>
-                <p>{tasksError}</p>
-              </Alert>
-            ) : tasks.length === 0 ? (
-              <div className="text-center py-4">
-                <CheckSquare size={48} className="text-muted mb-3" />
-                <h5>No tasks yet</h5>
-                <p className="text-muted mb-4">Add tasks to track your project progress</p>
+            </div>
+
+            {/* Description Section */}
+            <div className="glass-effect p-4 rounded-3 mb-4">
+              <h5 className="fw-bold mb-3">Description</h5>
+              {projectDetail.description ? (
+                <p className="text-muted mb-0">{projectDetail.description}</p>
+              ) : (
+                <p className="text-muted mb-0 fst-italic">No description provided for this project.</p>
+              )}
+            </div>
+
+            {/* Tasks Section */}
+            <div className="glass-effect p-4 rounded-3">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="fw-bold mb-0">Tasks</h5>
+                <Link 
+                  to={`/projects/${id}/tasks`}
+                  className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                >
+                  View All
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+
+              {tasksLoading ? (
+                <div className="text-center py-5">
+                  <Loader message="Loading tasks..." />
+                </div>
+              ) : tasksError ? (
+                <Alert variant="warning">
+                  <div className="fw-bold mb-2">Unable to load tasks</div>
+                  <p className="text-muted mb-0">{tasksError}</p>
+                </Alert>
+              ) : tasks.length === 0 ? (
+                <div className="text-center py-5">
+                  <h6 className="fw-bold mb-2">No tasks yet</h6>
+                  <p className="text-muted mb-4">Add tasks to track your project progress</p>
+                  <button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="btn btn-primary d-flex align-items-center gap-2 mx-auto"
+                  >
+                    <Plus size={16} />
+                    Create First Task
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <TaskList
+                    tasks={tasks.slice(0, 5)}
+                    onToggleStatus={handleToggleStatus}
+                    onEditTask={openEditModal}
+                    onDeleteTask={handleDeleteTask}
+                    viewMode="compact"
+                    loading={tasksLoading}
+                  />
+                  {tasks.length > 5 && (
+                    <div className="text-center mt-4 pt-3 border-top">
+                      <Link 
+                        to={`/projects/${id}/tasks`}
+                        className="btn btn-outline-primary d-flex align-items-center gap-2 mx-auto"
+                      >
+                        View All {tasks.length} Tasks
+                        <ArrowRight size={14} />
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </Col>
+
+          {/* Sidebar */}
+          <Col lg={4}>
+            {/* Project Details */}
+            <div className="glass-effect p-4 rounded-3 mb-4">
+              <h5 className="fw-bold mb-4">Project Details</h5>
+              
+              <div className="d-flex flex-column gap-3">
+                <div>
+                  <small className="text-muted d-block mb-1">Created</small>
+                  <span className="fw-medium">{formatDate(projectDetail.createdAt)}</span>
+                </div>
+                
+                <div>
+                  <small className="text-muted d-block mb-1">Last Updated</small>
+                  <span className="fw-medium">{formatRelativeTime(projectDetail.updatedAt)}</span>
+                </div>
+                
+                <div>
+                  <small className="text-muted d-block mb-1">Owner</small>
+                  <span className="fw-medium">
+                    {projectDetail.owner?.firstName || 'Unknown'} {projectDetail.owner?.lastName || ''}
+                  </span>
+                </div>
+                
+                <div>
+                  <small className="text-muted d-block mb-1">Total Tasks</small>
+                  <span className="fw-medium">{totalTasks}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="glass-effect p-4 rounded-3">
+              <h5 className="fw-bold mb-4">Quick Actions</h5>
+              
+              <div className="d-grid gap-2">
                 <button 
                   onClick={() => setShowCreateModal(true)}
-                  className="btn btn-primary"
+                  className="btn btn-primary d-flex align-items-center justify-content-center gap-2"
                 >
-                  <Plus className="me-2" />
-                  Create First Task
+                  <Plus size={16} />
+                  Add New Task
                 </button>
+                <Link 
+                  to={`/projects/${id}/tasks`} 
+                  className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2"
+                >
+                  View All Tasks
+                  <ArrowRight size={16} />
+                </Link>
+                <Link 
+                  to="/projects" 
+                  className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2"
+                >
+                  <ArrowLeft size={16} />
+                  Back to Projects
+                </Link>
               </div>
-            ) : (
-              <>
-                <TaskList
-                  tasks={tasks.slice(0, 5)} // Show only 5 tasks
-                  onToggleStatus={handleToggleStatus}
-                  onEditTask={openEditModal}
-                  onDeleteTask={handleDeleteTask}
-                  viewMode="compact"
-                />
-                {tasks.length > 5 && (
-                  <div className="text-center mt-3">
-                    <Link 
-                      to={`/projects/${id}/tasks`}
-                      className="btn btn-outline-primary"
-                    >
-                      View All {tasks.length} Tasks
-                    </Link>
-                  </div>
-                )}
-              </>
-            )}
-          </Card.Body>
-        </Card>
+            </div>
+          </Col>
+        </Row>
 
-        {/* Add Task Form Modal */}
+        {/* MODALS */}
         <TaskForm
           show={showCreateModal}
           onHide={() => setShowCreateModal(false)}
@@ -431,7 +461,6 @@ const ProjectDetailPage: React.FC = () => {
           projectId={projectId}
         />
 
-        {/* Edit Task Modal */}
         <TaskForm
           show={showEditModal}
           onHide={() => {
@@ -443,24 +472,41 @@ const ProjectDetailPage: React.FC = () => {
           task={selectedTask}
         />
 
+        {/* DELETE CONFIRMATION MODAL */}
         {confirmDelete && (
           <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Delete Project</h5>
+              <div className="modal-content border-0 shadow-lg">
+                <div className="modal-header border-0">
+                  <h5 className="modal-title fw-bold">Delete Project</h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => setConfirmDelete(false)}
+                  ></button>
                 </div>
-                <div className="modal-body">
-                  <p>
-                    Are you sure you want to delete <strong>{projectDetail.title}</strong>?
+                <div className="modal-body py-4">
+                  <h6 className="fw-bold mb-3">Are you sure?</h6>
+                  <p className="text-muted mb-2">
+                    You are about to delete <strong>{projectDetail.title}</strong>. This action cannot be undone.
                   </p>
-                  <p className="text-danger small">
-                    This action cannot be undone. All tasks associated with this project will also be deleted.
+                  <p className="text-danger small mb-0">
+                    All tasks associated with this project will also be deleted.
                   </p>
                 </div>
-                <div className="modal-footer">
-                  <button className="btn btn-outline-secondary" onClick={() => setConfirmDelete(false)}>Cancel</button>
-                  <button className="btn btn-danger" onClick={handleDelete}>Delete Project</button>
+                <div className="modal-footer border-0">
+                  <button 
+                    className="btn btn-outline-secondary" 
+                    onClick={() => setConfirmDelete(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="btn btn-danger" 
+                    onClick={handleDelete}
+                  >
+                    Delete Project
+                  </button>
                 </div>
               </div>
             </div>

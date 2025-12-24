@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
-import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
+import React from 'react';
+import { Navbar, Container, Dropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  PersonCircle, 
-  BoxArrowRight,
-  Gear,
-  Bell 
-} from 'react-bootstrap-icons';
+import { PersonCircle, BoxArrowRight } from 'react-bootstrap-icons';
 import { useAuth } from '../../context/AuthContext';
 import UserAvatar from '../users/UserAvatar';
 import { formatName } from '../../utils/formatters';
+import NotificationBell from '../notifications/NotificationBell';
 
 const CustomNavbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [notifications] = useState(3); // Example notification count
 
   const handleLogout = () => {
     logout();
@@ -22,91 +17,99 @@ const CustomNavbar: React.FC = () => {
   };
 
   return (
-    <Navbar bg="white" expand="lg" className="shadow-sm border-bottom">
-      <Container fluid>
-        <Navbar.Brand as={Link} to="/dashboard" className="fw-bold text-primary">
-          <span className="d-none d-md-inline">MyWorkFlow</span>
-          <span className="d-md-none">MW</span>
+    <Navbar className="clean-navbar">
+      <Container fluid className="px-4 d-flex align-items-center">
+        
+        {/* Brand + Owl */}
+        <Navbar.Brand
+          as={Link}
+          to="/dashboard"
+          className="clean-navbar-brand d-flex align-items-center gap-2"
+        >
+          {/* Mini Owl Mascot */}
+          <div
+            style={{
+              width: '34px',
+              height: '34px',
+              animation: 'float 3s ease-in-out infinite',
+            }}
+          >
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              {/* Head */}
+              <circle cx="100" cy="90" r="55" fill="#F97316" />
+
+              {/* Ears */}
+              <path d="M 60 50 Q 50 30 70 40" fill="#EA580C" />
+              <path d="M 140 50 Q 150 30 130 40" fill="#EA580C" />
+
+              {/* Eyes */}
+              <circle cx="80" cy="90" r="18" fill="#FFFFFF" />
+              <circle cx="120" cy="90" r="18" fill="#FFFFFF" />
+
+              {/* Pupils */}
+              <circle cx="80" cy="90" r="8" fill="#1F2933">
+                <animate
+                  attributeName="cx"
+                  values="80;84;80;76;80"
+                  dur="4s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+              <circle cx="120" cy="90" r="8" fill="#1F2933">
+                <animate
+                  attributeName="cx"
+                  values="120;124;120;116;120"
+                  dur="4s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+
+              {/* Beak */}
+              <path d="M 100 100 L 95 110 L 105 110 Z" fill="#FACC15" />
+            </svg>
+          </div>
+
+          {/* App Name */}
+          <span>MyWorkFlow</span>
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        {/* Right actions */}
+        <div className="navbar-actions ms-auto">
+          <NotificationBell />
 
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-            <Nav.Link as={Link} to="/projects">Projects</Nav.Link>
-            <Nav.Link as={Link} to="/tasks">Tasks</Nav.Link>
-          </Nav>
-
-          <Nav className="align-items-center">
-            {/* Notifications */}
-            <Dropdown className="me-3">
-              <Dropdown.Toggle 
-                variant="light" 
-                size="sm" 
-                className="position-relative border-0"
-              >
-                <Bell size={20} />
-                {notifications > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {notifications}
-                    <span className="visually-hidden">unread notifications</span>
-                  </span>
-                )}
+          {user && (
+            <Dropdown align="end">
+              <Dropdown.Toggle className="clean-user-toggle">
+                <UserAvatar
+                  firstName={user.firstName}
+                  lastName={user.lastName}
+                  profileImageUrl={user.profileImageUrl}
+                  size="sm"
+                />
+                <span className="user-name">
+                  {formatName(user.firstName, user.lastName)}
+                </span>
               </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                <Dropdown.Header>Notifications</Dropdown.Header>
-                <Dropdown.Item>Task "Design Review" is due tomorrow</Dropdown.Item>
-                <Dropdown.Item>New project assigned to you</Dropdown.Item>
-                <Dropdown.Item>3 tasks completed this week</Dropdown.Item>
+
+              <Dropdown.Menu className="clean-dropdown-menu">
+                <Dropdown.Item as={Link} to="/profile">
+                  <PersonCircle className="me-2" />
+                  Profile
+                </Dropdown.Item>
+
                 <Dropdown.Divider />
-                <Dropdown.Item as={Link} to="/notifications">
-                  View all notifications
+
+                <Dropdown.Item
+                  onClick={handleLogout}
+                  className="text-danger"
+                >
+                  <BoxArrowRight className="me-2" />
+                  Logout
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-
-            {/* User Profile Dropdown */}
-            {user && (
-              <Dropdown>
-                <Dropdown.Toggle 
-                  variant="light" 
-                  className="d-flex align-items-center gap-2 border-0"
-                >
-                  <UserAvatar
-                    firstName={user.firstName}
-                    lastName={user.lastName}
-                    profileImageUrl={user.profileImageUrl}
-                    size="sm"
-                  />
-                  <span className="d-none d-md-inline">
-                    {formatName(user.firstName, user.lastName)}
-                  </span>
-                </Dropdown.Toggle>
-                <Dropdown.Menu align="end">
-                  <Dropdown.Header>
-                    Signed in as<br />
-                    <strong>{user.email}</strong>
-                  </Dropdown.Header>
-                  <Dropdown.Divider />
-                  <Dropdown.Item as={Link} to="/profile">
-                    <PersonCircle className="me-2" />
-                    My Profile
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/settings">
-                    <Gear className="me-2" />
-                    Settings
-                  </Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item onClick={handleLogout}>
-                    <BoxArrowRight className="me-2" />
-                    Logout
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            )}
-          </Nav>
-        </Navbar.Collapse>
+          )}
+        </div>
       </Container>
     </Navbar>
   );

@@ -45,10 +45,35 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="auth-form-container">
-      <div className="text-center mb-4">
-        <h2>Welcome Back</h2>
-        <p className="text-muted">Please sign in to your account</p>
+    <div>
+      <div 
+        className="text-center mb-4"
+        style={{
+          paddingBottom: '20px',
+          borderBottom: '2px solid rgba(254, 215, 170, 0.5)',
+        }}
+      >
+        <h2 
+          style={{ 
+            fontSize: '26px',
+            fontWeight: '700',
+            color: '#1F2933',
+            marginBottom: '8px',
+            letterSpacing: '-0.5px',
+          }}
+        >
+          Sign In
+        </h2>
+        <p 
+          style={{ 
+            color: '#52606D',
+            fontSize: '14px',
+            fontWeight: '500',
+            margin: 0,
+          }}
+        >
+          Enter your credentials to access your account
+        </p>
       </div>
 
       {error && (
@@ -61,7 +86,7 @@ const LoginForm: React.FC = () => {
         <Input
           label="Email Address"
           type="email"
-          placeholder="Enter your email"
+          placeholder="your.email@example.com"
           error={errors.email?.message}
           {...register('email')}
         />
@@ -74,25 +99,47 @@ const LoginForm: React.FC = () => {
           {...register('password')}
         />
 
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <Form.Check type="checkbox" label="Remember me" />
-          <a href="/forgot-password" className="text-decoration-none">
-            Forgot password?
-          </a>
-        </div>
 
         <Button
           type="submit"
           loading={isLoading}
-          className="w-100 py-2"
+          className="w-100"
+          style={{
+            padding: '14px',
+            fontSize: '15px',
+            marginBottom: '20px',
+          }}
         >
           Sign In
         </Button>
 
-        <div className="text-center mt-4">
-          <p className="text-muted">
+        <div 
+          className="text-center"
+          style={{
+            padding: '20px 0 0',
+            borderTop: '1px solid rgba(254, 215, 170, 0.5)',
+          }}
+        >
+          <p 
+            style={{ 
+              color: '#52606D',
+              fontSize: '14px',
+              fontWeight: '500',
+              margin: 0,
+            }}
+          >
             Don't have an account?{' '}
-            <a href="/register" className="text-decoration-none fw-bold">
+            <a 
+              href="/register" 
+              className="text-decoration-none"
+              style={{
+                color: '#F97316',
+                fontWeight: '700',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#EA580C'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#F97316'}
+            >
               Sign up
             </a>
           </p>

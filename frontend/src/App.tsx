@@ -1,10 +1,12 @@
 import React from 'react';
 import AppRoutes from './routes/AppRoutes';
 import { Toaster } from 'react-hot-toast';
+import { NotificationProvider } from './context/NotificationContext';
 
 const App: React.FC = () => {
   return (
-    <>
+   
+    <NotificationProvider>
       <AppRoutes />
       <Toaster
         position="top-right"
@@ -26,7 +28,8 @@ const App: React.FC = () => {
           },
         }}
       />
-    </>
+   </NotificationProvider>
+   
   );
 };
 

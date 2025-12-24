@@ -32,7 +32,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
   if (error) {
     return (
-      <Alert variant="danger">
+      <Alert variant="danger" className="pulse-animation">
         <Alert.Heading>Error loading projects</Alert.Heading>
         <p>{error}</p>
       </Alert>
@@ -52,14 +52,15 @@ const ProjectList: React.FC<ProjectListProps> = ({
   }
 
   return (
-    <Row>
-      {projects.map((project) => (
+    <Row className="custom-scrollbar">
+      {projects.map((project, index) => (
         <Col 
           key={project.id} 
           xs={12} 
           sm={6} 
           lg={columnWidth} 
-          className="mb-4"
+          className="mb-4 project-item"
+          style={{ animationDelay: `${index * 0.1}s` }}
         >
           <ProjectCard
             project={project}

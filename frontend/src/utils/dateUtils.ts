@@ -65,3 +65,41 @@ export const formatDueDate = (dueDate?: string): string => {
   
   return formatDate(dueDate, 'short');
 };
+
+export const getWeekDays = (): string[] => {
+  const days = [];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+  }
+  
+  return days;
+};
+
+export const getMonthNames = (count: number = 6): string[] => {
+  const months = [];
+  const today = new Date();
+  
+  for (let i = count - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setMonth(date.getMonth() - i);
+    months.push(date.toLocaleDateString('en-US', { month: 'short' }));
+  }
+  
+  return months;
+};
+
+export const formatTimeAgo = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  return formatDate(dateString, 'short');
+};

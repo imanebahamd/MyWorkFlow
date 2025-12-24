@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Breadcrumb, Button as BootstrapButton } from 'react-bootstrap';
+import { Container,   Button as BootstrapButton } from 'react-bootstrap';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   ArrowLeft,
@@ -56,14 +56,12 @@ const ProjectTasksPage: React.FC = () => {
     sortDirection: 'asc',
   });
 
-  // Check if we should open create modal from URL
   useEffect(() => {
     if (searchParams.get('create') === 'true') {
       setShowCreateModal(true);
     }
   }, [searchParams]);
 
-  // Fetch project and tasks on mount
   useEffect(() => {
     if (id) {
       fetchProjectById(parseInt(id));
@@ -117,7 +115,7 @@ const ProjectTasksPage: React.FC = () => {
   const handlePageChange = (page: number) => {
     fetchTasks({
       ...filters,
-      page: page - 1, // Convert to zero-based
+      page: page - 1,
       size: pagination.size,
     });
   };
@@ -125,7 +123,7 @@ const ProjectTasksPage: React.FC = () => {
   const handlePageSizeChange = (size: number) => {
     fetchTasks({
       ...filters,
-      page: 0, // Reset to first page
+      page: 0,
       size: size,
     });
   };
@@ -172,7 +170,7 @@ const ProjectTasksPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <Loader fullScreen />
+          <Loader fullScreen message="Loading project..." />
         </Container>
       </MainLayout>
     );
@@ -182,21 +180,13 @@ const ProjectTasksPage: React.FC = () => {
     return (
       <MainLayout>
         <Container className="py-4">
-          <AlertMessage variant="danger" title="Project not found">
-            <p>{projectError || 'The project you are looking for does not exist.'}</p>
-            <div className="d-flex gap-2 mt-3">
-              <Link 
-                to="/projects" 
-                className="btn btn-outline-primary d-flex align-items-center gap-2"
-              >
-                <ArrowLeft />
+          <AlertMessage variant="danger">
+            <div className="fw-bold mb-2">Project not found</div>
+            <p className="mb-3">{projectError || 'The project you are looking for does not exist.'}</p>
+            <div className="d-flex gap-2">
+              <Link to="/projects" className="btn btn-outline-primary">
+                <ArrowLeft size={16} className="me-2" />
                 Back to Projects
-              </Link>
-              <Link 
-                to="/projects" 
-                className="btn btn-primary"
-              >
-                View All Projects
               </Link>
             </div>
           </AlertMessage>
@@ -211,74 +201,62 @@ const ProjectTasksPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <Container className="py-4">
-        {/* Breadcrumb */}
-        <Breadcrumb className="mb-4">
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/dashboard' }}>
-            Dashboard
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/projects' }}>
-            Projects
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: `/projects/${id}` }}>
-            {projectDetail.title}
-          </Breadcrumb.Item>
-          <Breadcrumb.Item active>
-            Tasks
-          </Breadcrumb.Item>
-        </Breadcrumb>
+      <Container fluid className="py-4 px-lg-4">
+        {/* HEADER */}
+        <div className="mb-4">
+         
 
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h1 className="h2 mb-2">
-              {projectDetail.title} - Tasks
-            </h1>
-            <p className="text-muted mb-0">
-              {totalTasks} tasks ({completedTasks} completed)
-            </p>
-          </div>
-          
-          <div className="d-flex gap-2">
-            <BootstrapButton
-              variant="success"
-              onClick={markAllAsCompleted}
-              disabled={tasks.length === 0 || tasks.every(t => t.status === TaskStatus.DONE)}
-            >
-              <CheckCircle className="me-2" />
-              Mark All Complete
-            </BootstrapButton>
-            <BootstrapButton
-              variant="primary"
-              onClick={() => setShowCreateModal(true)}
-            >
-              <Plus className="me-2" />
-              New Task
-            </BootstrapButton>
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            <div className="mb-3 mb-md-0">
+              <h1 className="fw-bold mb-2">{projectDetail.title}</h1>
+              <p className="text-muted mb-0">
+                {totalTasks} tasks · {completedTasks} completed
+              </p>
+            </div>
+            
+            <div className="d-flex gap-2">
+              <BootstrapButton
+                variant="outline-success"
+                onClick={markAllAsCompleted}
+                disabled={tasks.length === 0 || tasks.every(t => t.status === TaskStatus.DONE)}
+              >
+                <CheckCircle size={16} className="me-2" />
+                Complete All
+              </BootstrapButton>
+              <BootstrapButton
+                variant="primary"
+                onClick={() => setShowCreateModal(true)}
+              >
+                <Plus size={16} className="me-2" />
+                New Task
+              </BootstrapButton>
+            </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <Card className="shadow-sm mb-4">
-          <Card.Body>
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <span className="fw-medium">Project Progress</span>
-              <span className="fw-bold">{completionPercentage}%</span>
-            </div>
-            <div className="progress" style={{ height: '10px' }}>
-              <div 
-                className="progress-bar bg-success" 
-                role="progressbar" 
-                style={{ width: `${completionPercentage}%` }}
-                aria-valuenow={completionPercentage}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              ></div>
-            </div>
-          </Card.Body>
-        </Card>
+        {/* PROGRESS SECTION */}
+        <div className="glass-effect p-4 rounded-3 mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="fw-bold mb-0">Overall Progress</h5>
+            <span className="fw-bold text-primary">{completionPercentage}%</span>
+          </div>
+          <div className="progress" style={{ height: '12px' }}>
+            <div 
+              className="progress-bar bg-success" 
+              role="progressbar" 
+              style={{ width: `${completionPercentage}%` }}
+              aria-valuenow={completionPercentage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            ></div>
+          </div>
+          <div className="d-flex justify-content-between text-muted small mt-2">
+            <span>{completedTasks} completed</span>
+            <span>{totalTasks - completedTasks} remaining</span>
+          </div>
+        </div>
 
-        {/* Error Alert */}
+        {/* ERROR ALERT */}
         {tasksError && (
           <AlertMessage 
             variant="danger" 
@@ -290,31 +268,40 @@ const ProjectTasksPage: React.FC = () => {
           </AlertMessage>
         )}
 
-        {/* Filters */}
+        {/* FILTERS */}
         <TaskFilters
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
           initialFilters={filters}
         />
 
-        {/* Tasks List */}
-        <TaskList
-          tasks={tasks}
-          loading={tasksLoading && tasks.length === 0}
-          onToggleStatus={handleToggleStatus}
-          onEditTask={openEditModal}
-          onDeleteTask={handleDeleteTask}
-          viewMode={filters.viewMode}
-          emptyMessage={
-            filters.search || filters.status || filters.dueDate || filters.overdue
-              ? 'No tasks found matching your filters'
-              : 'Create your first task for this project'
-          }
-        />
+        {/* TASKS LIST */}
+        <div className="glass-effect p-4 rounded-3 mb-4">
+          <div className="mb-4">
+            <h5 className="fw-bold mb-1">All Tasks</h5>
+            <p className="text-muted small mb-0">
+              Manage and track all tasks for this project
+            </p>
+          </div>
 
-        {/* Pagination */}
+          <TaskList
+            tasks={tasks}
+            loading={tasksLoading && tasks.length === 0}
+            onToggleStatus={handleToggleStatus}
+            onEditTask={openEditModal}
+            onDeleteTask={handleDeleteTask}
+            viewMode={filters.viewMode}
+            emptyMessage={
+              filters.search || filters.status || filters.dueDate || filters.overdue
+                ? 'No tasks found matching your filters'
+                : 'Create your first task for this project'
+            }
+          />
+        </div>
+
+        {/* PAGINATION */}
         {pagination.totalPages > 1 && (
-          <div className="d-flex justify-content-center mt-4">
+          <div className="d-flex justify-content-center">
             <Pagination
               currentPage={pagination.page + 1}
               totalPages={pagination.totalPages}
@@ -324,17 +311,27 @@ const ProjectTasksPage: React.FC = () => {
               onPageSizeChange={handlePageSizeChange}
               showPageInfo={true}
               showPageSizeSelector={true}
-              className="mt-4"
             />
           </div>
         )}
 
-        {/* Create Task Modal */}
+        {/* BACK BUTTON */}
+        <div className="mt-4">
+          <Link 
+            to={`/projects/${id}`}
+            className="btn btn-outline-secondary d-flex align-items-center gap-2"
+            style={{ width: 'fit-content' }}
+          >
+            <ArrowLeft size={16} />
+            Back to Project
+          </Link>
+        </div>
+
+        {/* MODALS */}
         <TaskForm
           show={showCreateModal}
           onHide={() => {
             setShowCreateModal(false);
-            // Remove create param from URL
             navigate(`/projects/${id}/tasks`, { replace: true });
           }}
           onSubmit={handleCreateTask}
@@ -342,7 +339,6 @@ const ProjectTasksPage: React.FC = () => {
           projectId={parseInt(id || '0')}
         />
 
-        {/* Edit Task Modal */}
         <TaskForm
           show={showEditModal}
           onHide={() => {

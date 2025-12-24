@@ -1,8 +1,9 @@
 import React from 'react';
-import { Row, Col, Alert, Placeholder } from 'react-bootstrap';
+import { Row, Col, Alert } from 'react-bootstrap';
 import type { Task } from '../../types/task.types';
 import TaskCard from './TaskCard';
 import EmptyState from '../common/EmptyState';
+import Loader from '../common/Loader';
 
 interface TaskListProps {
   tasks: Task[];
@@ -27,18 +28,8 @@ const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const columnWidth = viewMode === 'grid' ? 6 : 12;
 
-  if (loading && tasks.length === 0) {
-    return (
-      <div className="py-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="mb-3">
-            <Placeholder as="div" animation="wave">
-              <Placeholder xs={12} style={{ height: '100px' }} />
-            </Placeholder>
-          </div>
-        ))}
-      </div>
-    );
+  if (loading) {
+    return <Loader message="Loading tasks..." />;
   }
 
   if (error) {
@@ -62,62 +53,41 @@ const TaskList: React.FC<TaskListProps> = ({
     );
   }
 
-  // Group tasks by status for better organization
-  const tasksByStatus = {
-    TODO: tasks.filter(t => t.status === 'TODO'),
-    IN_PROGRESS: tasks.filter(t => t.status === 'IN_PROGRESS'),
-    DONE: tasks.filter(t => t.status === 'DONE'),
-  };
-
-  const hasMultipleStatuses = Object.values(tasksByStatus).filter(arr => arr.length > 0).length > 1;
-
-  // Créer une copie locale de viewMode pour éviter les problèmes de typage
-  const currentViewMode = viewMode;
-
-  if (hasMultipleStatuses && currentViewMode === 'list') {
+  // Compact view - simple list
+  if (viewMode === 'compact') {
     return (
       <div>
-        {Object.entries(tasksByStatus).map(([status, statusTasks]) => {
-          if (statusTasks.length === 0) return null;
-          
-          return (
-            <div key={status} className="mb-4">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="mb-0 text-capitalize">{status.replace('_', ' ')} ({statusTasks.length})</h5>
-              </div>
-              <Row>
-                {statusTasks.map(task => (
-                  <Col key={task.id} xs={12} className="mb-3">
-                    <TaskCard
-                      task={task}
-                      onToggleStatus={onToggleStatus}
-                      onEdit={onEditTask}
-                      onDelete={onDeleteTask}
-                      compact={false} // Dans ce bloc, on sait que viewMode est 'list'
-                    />
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          );
-        })}
+        {tasks.map(task => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            onToggleStatus={onToggleStatus}
+            onEdit={onEditTask}
+            onDelete={onDeleteTask}
+            compact={true}
+          />
+        ))}
       </div>
     );
   }
 
-  // Déterminer si les cartes doivent être compactes
-  const isCompact = currentViewMode === 'compact' || currentViewMode === 'grid';
-
+  // Grid or List view
   return (
     <Row>
-      {tasks.map(task => (
-        <Col key={task.id} xs={12} md={columnWidth} className="mb-3">
+      {tasks.map((task, index) => (
+        <Col 
+          key={task.id} 
+          xs={12} 
+          md={columnWidth} 
+          className="mb-3"
+          style={{ animationDelay: `${index * 0.1}s` }}
+        >
           <TaskCard
             task={task}
             onToggleStatus={onToggleStatus}
             onEdit={onEditTask}
             onDelete={onDeleteTask}
-            compact={isCompact}
+            compact={false}
           />
         </Col>
       ))}

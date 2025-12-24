@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from './Navbar';
+import CustomNavbar from './Navbar';
 import Sidebar from './Sidebar';
 
 interface MainLayoutProps {
@@ -8,14 +8,14 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Navbar />
-      <div className="d-flex grow">
+    <div className="app-layout">
+      <CustomNavbar />
+
+      <div className="layout-body">
         <Sidebar />
-        <main className="grow bg-light">
-          <div className="container-fluid py-4">
-            {children}
-          </div>
+
+        <main className="main-content">
+          {children}
         </main>
       </div>
     </div>
