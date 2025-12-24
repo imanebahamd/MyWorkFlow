@@ -19,14 +19,6 @@
 
 ---
 
-## 📹 Demo Video
-
-<!-- Replace the link below with your YouTube or video link -->
-[![MyWorkFlow Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-
-> 🎥 **Click on the image above to watch the full demo**
-
----
 
 ## ✨ Features
 
@@ -277,14 +269,7 @@ npm run preview
 | 🔧 **Backend API** | http://localhost:8080 | Spring Boot API |
 | 📖 **API Docs** | http://localhost:8080/swagger-ui.html | Swagger UI |
 
-### 🧪 Test Credentials
 
-```json
-{
-  "email": "test@example.com",
-  "password": "Test123!"
-}
-```
 
 ---
 
@@ -418,19 +403,13 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 👨‍💻 Author
 
 **Bahamd Imane**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- GitHub: [@yourusername]([https://github.com/yourusername](https://github.com/imanebahamd))
+
 
 ---
 
