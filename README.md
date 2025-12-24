@@ -2,7 +2,6 @@
 
 <div align="center">
 
-![MyWorkFlow Banner](https://via.placeholder.com/800x200/4CAF50/FFFFFF?text=MyWorkFlow)
 
 **A modern, full-stack project task management application built with Spring Boot and React**
 
