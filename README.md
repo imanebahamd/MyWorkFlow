@@ -12,7 +12,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[Demo](#-demo-video) • [Features](#-features) • [Installation](#-quick-start) • [Documentation](#-api-endpoints) • [Contributing](#-contributing)
+ [Features](#-features) • [Installation](#-quick-start) • [Documentation](#-api-endpoints) • [Contributing](#-contributing)
 
 </div>
 
