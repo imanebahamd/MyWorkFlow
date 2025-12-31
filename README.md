@@ -365,7 +365,7 @@ CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 
 **Bahamd Imane**
 
-- GitHub: [Imane Bahamd]([https://github.com/yourusername](https://github.com/imanebahamd))
+- GitHub: [@ImaneBahamd]([https://github.com/yourusername](https://github.com/imanebahamd))
 
 
 ---
