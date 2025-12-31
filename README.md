@@ -361,29 +361,11 @@ CREATE INDEX idx_tasks_status ON tasks(status);
 CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 ```
 
----
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-cd backend
-mvn test
-mvn verify
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm run test
-npm run test:coverage
-```
-
 ## 👨‍💻 Author
 
 **Bahamd Imane**
 
-- GitHub: [@yourusername]([https://github.com/yourusername](https://github.com/imanebahamd))
+- GitHub: [Imane Bahamd]([https://github.com/yourusername](https://github.com/imanebahamd))
 
 
 ---
