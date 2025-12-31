@@ -381,6 +381,4 @@ CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 
 **Built with ❤️ by Bahamd Imane**
 
-⭐ **Star this repository if you find it helpful!**
-
 </div>
