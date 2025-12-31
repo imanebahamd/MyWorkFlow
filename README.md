@@ -49,7 +49,6 @@
 ### 🎨 User Interface
 - ✅ Modern, responsive design with Bootstrap
 - ✅ Interactive charts using Chart.js
-- ✅ Real-time notifications system
 - ✅ Intuitive navigation and user experience
 
 ---
